@@ -26,6 +26,18 @@ Tất cả các mốc thay đổi và tiến độ thực hiện đồ án sẽ 
 
 ---
 
+## [v0.2.0] - 2026-11-09
+
+### Đã hoàn thành (Backend Skeleton & Database Connection)
+- Khởi tạo khung dự án Spring Boot (Maven, Java 17/19).
+- Thiết lập các thư viện cốt lõi: Spring Data JPA, Spring Security, JWT (JJWT 0.12.5), Google API Client (không cần Firebase), PostgreSQL Driver, Lombok.
+- Cấu hình tệp `application.yml` kết nối tới cơ sở dữ liệu `flashcard_db` trên PostgreSQL.
+- Xây dựng cấu trúc phân tầng chuẩn: `entity/` (User, Role, AuthProvider), `repository/` (UserRepository), `controller/` (HealthController), `dto/` (ApiResponse), `config/` (SecurityConfig, CorsConfig).
+- Cấu hình CORS mở quyền cho cả Web React (`localhost:5173`) và máy ảo Android (`10.0.2.2`).
+- Tích hợp công cụ đóng gói Maven Wrapper (`mvnw`, `mvnw.cmd`).
+
+---
+
 ## [v0.1.0] - 2026-11-09
 
 ### Đã hoàn thành (Initial Setup)
