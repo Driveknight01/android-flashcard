@@ -9,16 +9,17 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:flashcard_db}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    password: ${DB_PASSWORD:postgres} # <-- HÃY ĐỔI MẬT KHẨU POSTGRES CỦA BẠN TẠI ĐÂY NẾU KHÁC 'postgres'
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # Tự động kiểm tra và đồng bộ cấu trúc bảng từ Entity
+      ddl-auto: none # Vì bạn đã chạy file schema.sql tạo bảng trong pgAdmin rồi, để 'none' để tránh xung đột Hibernate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
 
 # Cấu hình JWT Token nội bộ
 jwt:
