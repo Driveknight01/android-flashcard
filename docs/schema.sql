@@ -287,3 +287,51 @@ CREATE TABLE ai_messages (
 );
 
 CREATE INDEX idx_ai_messages_conv ON ai_messages(conversation_id, created_at ASC);
+
+-- ==============================================================================
+-- 9. CÁC BẢNG DÀNH RIÊNG CHO ACTOR QUẢN TRỊ VIÊN (ADMINISTRATOR)
+-- Quản trị nội dung, kiểm duyệt vi phạm, cấu hình hệ thống và ghi log thao tác
+-- ==============================================================================
+
+-- Bảng báo cáo nội dung vi phạm (Người dùng report -> Admin duyệt)
+CREATE TABLE content_reports (
+    id BIGSERIAL PRIMARY KEY,
+    reporter_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, -- Người gửi báo cáo
+    target_type VARCHAR(30) NOT NULL CHECK (target_type IN ('DECK', 'USER', 'COMMENT')),
+    target_id BIGINT NOT NULL, -- ID của bộ thẻ hoặc ID của user bị report
+    reason VARCHAR(100) NOT NULL, -- Lý do: SPAM, INAPPROPRIATE, WRONG_KNOWLEDGE, COPYRIGHT
+    description TEXT,
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'RESOLVED', 'REJECTED')),
+    resolved_by BIGINT REFERENCES users(id) ON DELETE SET NULL, -- Admin xử lý
+    resolution_notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX idx_reports_status ON content_reports(status);
+CREATE INDEX idx_reports_target ON content_reports(target_type, target_id);
+
+-- Bảng cấu hình hệ thống (Admin quản lý tham số động)
+CREATE TABLE system_settings (
+    id BIGSERIAL PRIMARY KEY,
+    setting_key VARCHAR(100) NOT NULL UNIQUE, -- Ví dụ: 'FSRS_DEFAULT_RETENTION', 'AI_MODEL_NAME'
+    setting_value TEXT NOT NULL,
+    description TEXT,
+    updated_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng nhật ký thao tác quản trị (Admin Audit Logs - phục vụ kiểm toán và minh bạch)
+CREATE TABLE admin_audit_logs (
+    id BIGSERIAL PRIMARY KEY,
+    admin_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    action VARCHAR(100) NOT NULL, -- Ví dụ: 'BAN_USER', 'UNBAN_USER', 'DELETE_DECK', 'UPDATE_SETTING'
+    target_entity VARCHAR(50) NOT NULL, -- Ví dụ: 'USER', 'DECK', 'SETTING'
+    target_id BIGINT,
+    details TEXT, -- Lưu chi tiết dạng JSON hoặc chuỗi mô tả
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_audit_admin ON admin_audit_logs(admin_id, created_at DESC);
+

@@ -49,8 +49,11 @@ Tham khảo từ mô hình của Quizlet:
    - Xem bảng thống kê: Theo dõi mức độ am hiểu kiến thức của từng học sinh thông qua báo cáo từ mô hình DKT.
 
 3. **Quản trị viên (ADMIN):**
-   - Quản lý tài khoản người dùng (khóa/mở tài khoản vi phạm).
-   - Quản lý danh mục khái niệm kiến thức (Knowledge Components).
+   - Quản lý tài khoản người dùng: Khóa/mở khóa tài khoản có hành vi gian lận hoặc vi phạm tiêu chuẩn cộng đồng.
+   - Kiểm duyệt nội dung (`content_reports`): Xử lý các báo cáo từ học sinh/giáo viên về các bộ thẻ sai kiến thức, phản cảm hoặc vi phạm bản quyền.
+   - Quản trị cấu hình hệ thống (`system_settings`): Điều chỉnh tham số thuật toán FSRS (ví dụ: mục tiêu khả năng nhớ `retention rate`), thay đổi model AI, bật/tắt tính năng.
+   - Theo dõi nhật ký kiểm toán (`admin_audit_logs`): Ghi lại minh bạch mọi thao tác quản trị trên hệ thống.
+   - Quản lý danh mục khái niệm kiến thức chuẩn (`knowledge_components`) phục vụ mô hình DKT.
 
 ---
 
@@ -72,3 +75,7 @@ Trong tệp [schema.sql](file:///d:/android-flashcard/docs/schema.sql), các ngu
 5. **Đón đầu dữ liệu cho Machine Learning:**
    - **Bảng `fsrs_card_states` & `fsrs_review_logs`:** Đủ 100% các biến của thuật toán FSRS v4/v5 (`stability`, `difficulty`, `elapsed_days`, `scheduled_days`, `reps`, `lapses`, `rating`, `duration_ms`).
    - **Bảng `dkt_question_logs`:** Ghi lại chuỗi thời gian `(user_id, kc_id, is_correct, timestamp)` - đây chính là định dạng đầu vào chuẩn tắc của các mô hình Deep Knowledge Tracing (DKT / SAKT / SAINT).
+6. **Bảo mật và Nghiệp vụ Quản trị viên (ADMIN):**
+   - **Bảng `content_reports`:** Tiếp nhận và xử lý các báo cáo vi phạm nội dung (Spam, sai kiến thức, bạo lực) từ người học/giáo viên.
+   - **Bảng `system_settings`:** Cho phép Admin thay đổi cấu hình động hệ thống (tham số FSRS mặc định, model AI, thông báo bảo trì).
+   - **Bảng `admin_audit_logs`:** Lưu vết lịch sử mọi hành vi can thiệp dữ liệu (khóa tài khoản, gỡ bộ thẻ) để phục vụ kiểm toán minh bạch.
