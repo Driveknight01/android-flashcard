@@ -23,6 +23,8 @@ CREATE TABLE users (
     streak_count INT NOT NULL DEFAULT 0, -- Số ngày học liên tục
     last_active_date DATE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    banned_at TIMESTAMP WITH TIME ZONE,    -- Thời điểm bị Admin khóa
+    ban_reason VARCHAR(255),               -- Lý do Admin khóa tài khoản
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -39,10 +41,13 @@ CREATE TABLE knowledge_components (
     name VARCHAR(150) NOT NULL,
     category VARCHAR(100),
     description TEXT,
+    parent_id BIGINT REFERENCES knowledge_components(id) ON DELETE SET NULL, -- Hỗ trợ cây kỹ năng (Skill Tree: Môn -> Chủ đề -> Khái niệm)
+    is_standard BOOLEAN NOT NULL DEFAULT TRUE, -- Do Admin chuẩn hóa (TRUE) hay giáo viên tự tạo (FALSE)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_kc_category ON knowledge_components(category);
+CREATE INDEX idx_kc_parent ON knowledge_components(parent_id);
 
 -- ==============================================================================
 -- 3. BẢNG BỘ THẺ (DECKS / STUDY SETS) VÀ THẺ (CARDS)
@@ -334,4 +339,45 @@ CREATE TABLE admin_audit_logs (
 );
 
 CREATE INDEX idx_audit_admin ON admin_audit_logs(admin_id, created_at DESC);
+
+-- Bảng thống kê hệ thống hàng ngày (Daily System Analytics)
+-- Phục vụ vẽ biểu đồ Dashboard cho Admin mà không cần chạy query SUM/COUNT nặng nề
+CREATE TABLE daily_system_analytics (
+    id BIGSERIAL PRIMARY KEY,
+    stat_date DATE NOT NULL UNIQUE,
+    active_users_count INT NOT NULL DEFAULT 0,
+    new_users_count INT NOT NULL DEFAULT 0,
+    total_reviews_count INT NOT NULL DEFAULT 0,
+    total_quiz_attempts INT NOT NULL DEFAULT 0,
+    ocr_scans_count INT NOT NULL DEFAULT 0,
+    ai_requests_count INT NOT NULL DEFAULT 0,
+    avg_fsrs_retention DOUBLE PRECISION NOT NULL DEFAULT 0.0, -- Tỉ lệ nhớ bài trung bình toàn trường
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_analytics_date ON daily_system_analytics(stat_date DESC);
+
+-- Bảng quản lý hạn mức AI (AI Quota) theo người dùng do Admin cấu hình
+CREATE TABLE user_ai_quotas (
+    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    daily_request_limit INT NOT NULL DEFAULT 30, -- Giới hạn số câu hỏi AI mỗi ngày
+    requests_used_today INT NOT NULL DEFAULT 0,
+    last_reset_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Bảng thông báo toàn hệ thống do Admin phát hành (System Announcements)
+CREATE TABLE system_announcements (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    type VARCHAR(30) NOT NULL DEFAULT 'INFO' CHECK (type IN ('INFO', 'WARNING', 'MAINTENANCE', 'EVENT')),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE -- Hết hạn hiển thị
+);
+
+CREATE INDEX idx_announcements_active ON system_announcements(is_active, created_at DESC);
+
 

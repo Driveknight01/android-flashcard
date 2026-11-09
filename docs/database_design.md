@@ -77,5 +77,9 @@ Trong tệp [schema.sql](file:///d:/android-flashcard/docs/schema.sql), các ngu
    - **Bảng `dkt_question_logs`:** Ghi lại chuỗi thời gian `(user_id, kc_id, is_correct, timestamp)` - đây chính là định dạng đầu vào chuẩn tắc của các mô hình Deep Knowledge Tracing (DKT / SAKT / SAINT).
 6. **Bảo mật và Nghiệp vụ Quản trị viên (ADMIN):**
    - **Bảng `content_reports`:** Tiếp nhận và xử lý các báo cáo vi phạm nội dung (Spam, sai kiến thức, bạo lực) từ người học/giáo viên.
-   - **Bảng `system_settings`:** Cho phép Admin thay đổi cấu hình động hệ thống (tham số FSRS mặc định, model AI, thông báo bảo trì).
+   - **Bảng `system_settings`:** Cho phép Admin thay đổi cấu hình động hệ thống (tham số FSRS mặc định, model AI).
    - **Bảng `admin_audit_logs`:** Lưu vết lịch sử mọi hành vi can thiệp dữ liệu (khóa tài khoản, gỡ bộ thẻ) để phục vụ kiểm toán minh bạch.
+   - **Bảng `daily_system_analytics`:** Lưu trữ chỉ số thống kê tổng hợp theo ngày (Active Users, Lượt ôn thẻ, Lượt làm trắc nghiệm, Tỉ lệ FSRS retention) giúp vẽ biểu đồ Dashboard tức thì.
+   - **Bảng `user_ai_quotas`:** Kiểm soát hạn mức gọi AI Chatbot hàng ngày của từng người dùng, ngăn ngừa spam và cạn kiệt chi phí API.
+   - **Bảng `system_announcements`:** Quản trị viên phát đi các thông báo toàn hệ thống (bảo trì, sự kiện, cập nhật phiên bản).
+   - **Cột phân cấp `parent_id` trong `knowledge_components`:** Cho phép Admin xây dựng cây kỹ năng kiến thức (Môn học -> Chương -> Khái niệm) phục vụ theo dõi DKT.
